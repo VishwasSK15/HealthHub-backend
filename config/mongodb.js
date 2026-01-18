@@ -1,13 +1,24 @@
 import mongoose from "mongoose";
 
 const connectDB = async () => {
+  try {
+    const mongoURI = process.env.MONGO_URI;
 
-    mongoose.connection.on('connected', () => console.log("Database Connected"))
-    await mongoose.connect(process.env.MONGODB_URI)
+    if (!mongoURI) {
+      throw new Error("MONGO_URI is not defined in environment variables");
+    }
 
+    const conn = await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+    });
 
-}
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error("MongoDB connection failed:", error.message);
+    process.exit(1);
+  }
+};
 
 export default connectDB;
-
-// Do not use '@' symbol in your databse user's password else it will show an error.
